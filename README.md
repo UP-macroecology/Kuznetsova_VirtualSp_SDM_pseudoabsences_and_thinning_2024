@@ -1,4 +1,6 @@
-# Kuznetsova_VirtualSp_SDM_pseudoabsences_and_thinning_2024
+# Testing the optimal proportion of pseudo-absences / presences in combination with spatial thinning methods
+
+## General workflow
 
 1. **Download environmental data & Crop it to the area of interest:**
     - Use `worldclim_global` to download global climate variables with a resolution of 30 seconds (~1 km).
