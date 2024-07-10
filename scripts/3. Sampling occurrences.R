@@ -1,11 +1,12 @@
 ## Sampling occurrences and creating pseudo-absences
 library(geodata)       # Download and manage geographic data for analysis
-library(terra)         # Manipulate and analyze geographic data 
+library(terra)         # Manipulate and analyze geographic data
+library(virtualspecies) # Generate virtual species distribution data for simulations
 
 
 # Make sure you download the virtual species you created and
 # upload the raster file of our region
-my.species <- readRDS("MyVirtualSpecies.RDS")
+sim_sp1_pa <- readRDS("data/MyVirtualSpecies.RDS")
 australia_clim1km <- rast("data/australia_clim1km.tif") 
 
 ## a. Sampling  occurrences (x20, x50, x100, x500, x1000) ----
@@ -37,7 +38,8 @@ sample.occ1000 <- sampleOccurrences(sim_sp1_pa,
                                        n = 1000, # The number of points to sample
                                        type = "presence only")
 
-summary(sample.o)
+summary(sample.occ20)
+
 # Since our sample points only have observed occurrences matching real occurrences,
 # we will remove the redundant data and only leave the coordinates.
 
@@ -46,7 +48,6 @@ sp_coords50 <- sample.occ50$sample.points[1:2]
 sp_coords100 <- sample.occ100$sample.points[1:2]
 sp_coords500 <- sample.occ500$sample.points[1:2]
 sp_coords1000 <- sample.occ1000$sample.points[1:2]
-
 
 
 ## b. Creating a 200 km buffer for pseudo-absences ----------------
@@ -93,7 +94,8 @@ region_buf50 <- terra::mask(bg, v_buf50)
 sp_cells50 <- terra::extract(region_buf50, presences50, cells=T)$cell
 region_buf_exclp50 <- region_buf50
 values(region_buf_exclp50)[sp_cells50] <- NA
-
+plot(bg, col='grey90', legend=F)
+plot(region_buf50, add=T, col='grey60', legend=F)
 
 ## for 100 sampled presences
 # Exclude presence locations:
