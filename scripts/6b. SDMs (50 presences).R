@@ -109,18 +109,18 @@ print(perf_vs50_10_gam)
 ## 2. Absences x5 ----
 
 # Check for multicollinearity between our environmental variables
-cor_mat <- cor(sp_thinned_20_5[,(5:23)], method='spearman')
-var_sel <- select07(X=sp_thinned_20_5[,c(5:23)], 
-                    y=sp_thinned_20_5$occ, 
+cor_mat <- cor(sp_thinned_50_5[,(5:23)], method='spearman')
+var_sel <- select07(X=sp_thinned_50_5[,c(5:23)], 
+                    y=sp_thinned_50_5$occ, 
                     threshold=0.7)
 
 # Inspect weakly correlated variables
 var_sel$pred_sel
-
-#Output: [1] "bio10" "bio12" "bio4"  "bio15" "bio11" "bio3"  "bio8" 
+print(cor_mat)
+#Output: [1] "bio10" "bio16" "bio11" "bio14" "bio8"  "bio2"  "bio15" "bio9"  "bio3" 
 
 # We are picking two variables representing temperature and precipitation
-# The initial variables 'bio10 & 'bio14' have correlation of 0.52
+# The initial variables 'bio10 & 'bio14' have correlation of -0.55
 my_preds <- c('bio10','bio14')
 
 
@@ -129,7 +129,7 @@ my_preds <- c('bio10','bio14')
 ## Splitting data into training and testing 
 
 # Our training data is the dataframe with the samples itself
-sp_train <- sp_thinned_20_5
+sp_train <- sp_thinned_50_5
 
 # We use the same data for testing the predictions
 summary(sp_test)
@@ -140,58 +140,62 @@ summary(sp_test)
 ## GLM 
 # Calculate same weights for presences and absences for regression based algorithms
 # sum of all pseudo abs has the same weight as the sum of presences
-weights <- ifelse(sp_thinned_20_5$occ==1, 1, 
-                  sum(sp_thinned_20_5$occ==1) / sum(sp_thinned_20_5$occ==0))
+weights <- ifelse(sp_thinned_50_5$occ==1, 1, 
+                  sum(sp_thinned_50_5$occ==1) / sum(sp_thinned_50_5$occ==0))
 
 
 # Fit GLM
-vs20_5_glm <- step(glm(occ ~ bio10 + I(bio10^2) + bio14 + I(bio14^2),
+vs50_5_glm <- step(glm(occ ~ bio10 + I(bio10^2) + bio14 + I(bio14^2),
                         family='binomial', data=sp_train, weights = weights))
 
 # Plot partial response curves:
 par(mfrow=c(1,2)) 
-partial_response(vs20_5_glm, predictors = sp_train[,my_preds], 
+partial_response(vs50_5_glm, predictors = sp_train[,my_preds], 
                  main='GLM', 
                  ylab='Occurrence probability')
 
 # Performance measures
-(perf_vs20_5_glm <- evalSDM(sp_test$occ, 
-                             predict(vs20_5_glm, sp_test[,my_preds], type='response') ))
+(perf_vs50_5_glm <- evalSDM(sp_test$occ, 
+                             predict(vs50_5_glm, sp_test[,my_preds], type='response') ))
 
-print(perf_vs20_5_glm)
+print(perf_vs50_5_glm)
 
 
 
 
 ## GAM 
 # Fit GAM with spline smoother
-vs20_5_gam <- mgcv::gam(occ ~ s(bio10,k=4) + s(bio14, k=4),
+vs50_5_gam <- mgcv::gam(occ ~ s(bio10,k=4) + s(bio14, k=4),
                          family='binomial', data=sp_train)
 # Plot partial response curves:
 par(mfrow=c(1,2)) 
-partial_response(vs20_5_gam, predictors = sp_train[,my_preds], main='GAM', 
+partial_response(vs50_5_gam, predictors = sp_train[,my_preds], main='GAM', 
                  ylab='Occurrence probability')
 
 # Performance measures
-(perf_vs20_5_gam <- evalSDM(sp_test$occ, predict(vs20_5_gam, sp_test[,my_preds], 
+(perf_vs50_5_gam <- evalSDM(sp_test$occ, predict(vs50_5_gam, sp_test[,my_preds], 
                                                   type='response') ))
-print(perf_vs20_5_gam)
+print(perf_vs50_5_gam)
+
+
+
+
 
 ## 3. Absences x3 ----
 
 # Check for multicollinearity between our environmental variables
-cor_mat <- cor(sp_thinned_20_3[,(5:23)], method='spearman')
-var_sel <- select07(X=sp_thinned_20_3[,c(5:23)], 
-                    y=sp_thinned_20_3$occ, 
+cor_mat <- cor(sp_thinned_50_3[,(5:23)], method='spearman')
+var_sel <- select07(X=sp_thinned_50_3[,c(5:23)], 
+                    y=sp_thinned_50_3$occ, 
                     threshold=0.7)
 
 # Inspect weakly correlated variables
 var_sel$pred_sel
-
-#Output: [1] "bio1"  "bio16" "bio19" "bio6"  "bio15" "bio3"  "bio8"  "bio17" "bio7"  "bio9"  
+print(cor_mat)
+#Output: [1] "bio10" "bio16" "bio17" "bio6"  "bio4"  "bio15" "bio3"  "bio9"  
 
 # We are picking two variables representing temperature and precipitation
-# The initial variables 'bio10 & 'bio14' have correlation of 0.56
+# The initial variables 'bio10 & 'bio14' have correlation of 0.60 (!)
 my_preds <- c('bio10','bio14')
 
 
@@ -200,7 +204,7 @@ my_preds <- c('bio10','bio14')
 ## Splitting data into training and testing 
 
 # Our training data is the dataframe with the samples itself
-sp_train <- sp_thinned_20_3
+sp_train <- sp_thinned_50_3
 
 # We use the same data for testing the predictions
 summary(sp_test)
@@ -211,58 +215,62 @@ summary(sp_test)
 ## GLM 
 # Calculate same weights for presences and absences for regression based algorithms
 # sum of all pseudo abs has the same weight as the sum of presences
-weights <- ifelse(sp_thinned_20_3$occ==1, 1, 
-                  sum(sp_thinned_20_3$occ==1) / sum(sp_thinned_20_3$occ==0))
+weights <- ifelse(sp_thinned_50_3$occ==1, 1, 
+                  sum(sp_thinned_50_3$occ==1) / sum(sp_thinned_50_3$occ==0))
 
 
 # Fit GLM
-vs20_3_glm <- step(glm(occ ~ bio10 + I(bio10^2) + bio14 + I(bio14^2),
+vs50_3_glm <- step(glm(occ ~ bio10 + I(bio10^2) + bio14 + I(bio14^2),
                        family='binomial', data=sp_train, weights = weights))
 
 # Plot partial response curves:
 par(mfrow=c(1,2)) 
-partial_response(vs20_3_glm, predictors = sp_train[,my_preds], 
+partial_response(vs50_3_glm, predictors = sp_train[,my_preds], 
                  main='GLM', 
                  ylab='Occurrence probability')
 
 # Performance measures
-(perf_vs20_3_glm <- evalSDM(sp_test$occ, 
-                            predict(vs20_3_glm, sp_test[,my_preds], type='response') ))
+(perf_vs50_3_glm <- evalSDM(sp_test$occ, 
+                            predict(vs50_3_glm, sp_test[,my_preds], type='response') ))
 
-print(perf_vs20_3_glm)
+print(perf_vs50_3_glm)
 
 
 
 
 ## GAM 
 # Fit GAM with spline smoother
-vs20_3_gam <- mgcv::gam(occ ~ s(bio10,k=4) + s(bio14, k=4),
+vs50_3_gam <- mgcv::gam(occ ~ s(bio10,k=4) + s(bio14, k=4),
                         family='binomial', data=sp_train)
 # Plot partial response curves:
 par(mfrow=c(1,2)) 
-partial_response(vs20_3_gam, predictors = sp_train[,my_preds], main='GAM', 
+partial_response(vs50_3_gam, predictors = sp_train[,my_preds], main='GAM', 
                  ylab='Occurrence probability')
 
 # Performance measures
-(perf_vs20_3_gam <- evalSDM(sp_test$occ, predict(vs20_3_gam, sp_test[,my_preds], 
+(perf_vs50_3_gam <- evalSDM(sp_test$occ, predict(vs50_3_gam, sp_test[,my_preds], 
                                                  type='response') ))
-print(perf_vs20_3_gam)
+print(perf_vs50_3_gam)
+
+
+
+
 
 ## 4. Absences x1 ----
 
 # Check for multicollinearity between our environmental variables
-cor_mat <- cor(sp_thinned_20_1[,(5:23)], method='spearman')
-var_sel <- select07(X=sp_thinned_20_1[,c(5:23)], 
-                    y=sp_thinned_20_1$occ, 
+cor_mat <- cor(sp_thinned_50_1[,(5:23)], method='spearman')
+var_sel <- select07(X=sp_thinned_50_1[,c(5:23)], 
+                    y=sp_thinned_50_1$occ, 
                     threshold=0.7)
 
 # Inspect weakly correlated variables
 var_sel$pred_sel
-
-#Output: [1] "bio10" "bio12" "bio7"  "bio11" "bio3"  "bio19" "bio8"  "bio9"  "bio15"
+cor_mat
+#Output: [1] "bio10" "bio14" "bio11" "bio19" "bio15" "bio8"  "bio3"  "bio9"  "bio4"  "bio12"
 
 # We are picking two variables representing temperature and precipitation
-# The initial variables 'bio10 & 'bio14' have correlation of -0.41
+# The initial variables 'bio10 & 'bio14' have correlation of -0.46
 my_preds <- c('bio10','bio14')
 
 
@@ -271,7 +279,7 @@ my_preds <- c('bio10','bio14')
 ## Splitting data into training and testing 
 
 # Our training data is the dataframe with the samples itself
-sp_train <- sp_thinned_20_1
+sp_train <- sp_thinned_50_1
 
 # We use the same data for testing the predictions
 summary(sp_test)
@@ -282,39 +290,57 @@ summary(sp_test)
 ## GLM 
 # Calculate same weights for presences and absences for regression based algorithms
 # sum of all pseudo abs has the same weight as the sum of presences
-weights <- ifelse(sp_thinned_20_1$occ==1, 1, 
-                  sum(sp_thinned_20_1$occ==1) / sum(sp_thinned_20_1$occ==0))
+weights <- ifelse(sp_thinned_50_1$occ==1, 1, 
+                  sum(sp_thinned_50_1$occ==1) / sum(sp_thinned_50_1$occ==0))
 
 
 # Fit GLM
-vs20_1_glm <- step(glm(occ ~ bio10 + I(bio10^2) + bio14 + I(bio14^2),
+vs50_1_glm <- step(glm(occ ~ bio10 + I(bio10^2) + bio14 + I(bio14^2),
                        family='binomial', data=sp_train, weights = weights))
 
 # Plot partial response curves:
 par(mfrow=c(1,2)) 
-partial_response(vs20_1_glm, predictors = sp_train[,my_preds], 
+partial_response(vs50_1_glm, predictors = sp_train[,my_preds], 
                  main='GLM', 
                  ylab='Occurrence probability')
 
 # Performance measures
-(perf_vs20_1_glm <- evalSDM(sp_test$occ, 
-                            predict(vs20_1_glm, sp_test[,my_preds], type='response') ))
+(perf_vs50_1_glm <- evalSDM(sp_test$occ, 
+                            predict(vs50_1_glm, sp_test[,my_preds], type='response') ))
 
-print(perf_vs20_1_glm)
+print(perf_vs50_1_glm)
 
 
 
 
 ## GAM 
 # Fit GAM with spline smoother
-vs20_1_gam <- mgcv::gam(occ ~ s(bio10,k=4) + s(bio14, k=4),
+vs50_1_gam <- mgcv::gam(occ ~ s(bio10,k=4) + s(bio14, k=4),
                         family='binomial', data=sp_train)
 # Plot partial response curves:
 par(mfrow=c(1,2)) 
-partial_response(vs20_1_gam, predictors = sp_train[,my_preds], main='GAM', 
+partial_response(vs50_1_gam, predictors = sp_train[,my_preds], main='GAM', 
                  ylab='Occurrence probability')
 
 # Performance measures
-(perf_vs20_1_gam <- evalSDM(sp_test$occ, predict(vs20_1_gam, sp_test[,my_preds], 
+(perf_vs50_1_gam <- evalSDM(sp_test$occ, predict(vs50_1_gam, sp_test[,my_preds], 
                                                  type='response') ))
-print(perf_vs20_1_gam)
+print(perf_vs50_1_gam)
+
+
+
+
+
+## 5. Comparing all algorithms
+
+(comp_perf <- rbind(glm_50x10 = perf_vs50_10_glm, gam_50x10 = perf_vs50_10_gam,
+                    glm_50x5 = perf_vs50_5_glm, gam_50x5 = perf_vs50_5_gam,
+                    glm_50x3 = perf_vs50_3_glm, gam_50x3 = perf_vs50_3_gam,
+                    glm_50x1 = perf_vs50_1_glm, gam_50x1 = perf_vs50_1_gam))
+
+
+# We add a column containing the names of the algorithm
+comp_perf <- data.frame(alg=row.names(comp_perf),comp_perf)
+
+# Adapt the file path to your folder structure
+write.table(comp_perf, file='data/SDM_alg_perf_50x10x5x3x1.txt', row.names=F)
