@@ -60,6 +60,7 @@ summary(as.data.frame(sim_sp1_pa$pa.raster, xy = TRUE))
 
 # Save true presences and absences as a separate dataframe.
 sim_sp1_pa.df <- as.data.frame(sim_sp1_pa$pa.raster, xy = TRUE)
+
 write.csv(sim_sp1_pa.df, file = "data/VS.dataframe.csv", row.names = FALSE)
 
 
