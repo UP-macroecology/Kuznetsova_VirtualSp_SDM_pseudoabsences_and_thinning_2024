@@ -2,7 +2,7 @@
 library(terra)
 library(mecofun)
 
-## Running SDMs for dfs with 50 presences
+## Running SDMs for dfs with 500 presences
 
 
 ## Uploading the data 
