@@ -6,7 +6,7 @@ library(spThin)        # Perform spatial thinning of the background data
 
 #Make sure you download the virtual species you created and
 # upload the raster file of our region
-my.species <- readRDS("MyVirtualSpecies.RDS")
+my.species <- readRDS("data/MyVirtualSpecies.RDS")
 australia_clim1km <- rast("data/australia_clim1km.tif") 
 
 

@@ -38,7 +38,7 @@ bg_rand_buf_df_50_10$occ <- 0
 summary(bg_rand_buf_df_50_10)
 
 # Third, we bind these two data sets
-sp_env_20_10 <- rbind(sp_env_50_10, bg_rand_buf_df_50_10)
+sp_env_50_10 <- rbind(sp_env_50_10, bg_rand_buf_df_50_10)
 summary(sp_env_50_10)
 
 # Last, we join this combined data set with the climate data.
