@@ -31,7 +31,7 @@ summary(sim_sp1_pa_env.df)
 ## 1. Absences x10 ----
 
 # Our training data is the dataframe with the samples itself
-sp_train <- sp_thinned_1000_10
+sp_train <- sp_thin_checker_1000_10
 
 # Now we take random 0.001% of rows from our virtual truth as our test df
 test_i <- sample(seq_len(nrow(sim_sp1_pa_env.df)), size=round(0.001*nrow(sim_sp1_pa_env.df))) 
@@ -39,24 +39,24 @@ sp_test <- sim_sp1_pa_env.df[test_i,]
 
 # Calculate same weights for presences and absences for regression based algorithms
 # sum of all pseudo abs has the same weight as the sum of presences
-weights <- ifelse(sp_thinned_1000_10$occ==1, 1, 
-                  sum(sp_thinned_1000_10$occ==1) / sum(sp_thinned_1000_10$occ==0))
+weights <- ifelse(sp_thin_checker_1000_10$occ==1, 1, 
+                  sum(sp_thin_checker_1000_10$occ==1) / sum(sp_thin_checker_1000_10$occ==0))
 
 # Check for multicollinearity between our environmental variables
-cor_mat <- cor(sp_thinned_1000_10[,(5:23)], method='spearman')
-var_sel <- select07(X=sp_thinned_1000_10[,c(5:23)], 
-                    y=sp_thinned_1000_10$occ, 
+cor_mat <- cor(sp_thin_checker_1000_10[,(7:25)], method='spearman')
+var_sel <- select07(X=sp_thin_checker_1000_10[,c(7:25)], 
+                    y=sp_thin_checker_1000_10$occ, 
                     threshold=0.7, weights=weights)
 
 # Inspect weakly correlated variables
 var_sel$pred_sel
 
-#Output: [1] "bio5"  "bio11" "bio17" "bio16" "bio15" "bio9"  "bio3" 
+#Output: [1] "bio5"  "bio12" "bio11" "bio15" "bio9"  "bio3" 
 
 print(cor_mat)
 
 # We are picking two variables representing temperature and precipitation
-# initial variables 'bio10 & 'bio14' have correlation of -0.46
+# initial variables 'bio10 & 'bio14' have correlation of -0.53
 my_preds <- c('bio10','bio14')
 
 ## GLM 
@@ -96,7 +96,7 @@ wireframe(z ~ bio10 + bio14, data = xyz, zlab = list("Occurrence prob.", rot=90)
 # Identify the optimal parameters where the predicted probability is highest
 # Create a dataframe for optimas
 optimas <- data.frame(
-  model_name = "glm_1000x10",
+  model_name = "glm_1000x10_chb",
   bio10 = xyz[which.max(xyz$z), my_preds[1]],
   bio14 = xyz[which.max(xyz$z), my_preds[2]],
   occ_prob = max(xyz$z)
@@ -130,7 +130,7 @@ wireframe(z ~ bio10 + bio14, data = xyz, zlab = list("Occurrence prob.", rot=90)
 # Identify the optimal parameters where the predicted probability is highest
 # Create a dataframe for optimas
 optimas <- rbind(optimas, list(
-  model_name = "gam_1000x10",
+  model_name = "gam_1000x10_chb",
   bio10 = xyz[which.max(xyz$z), my_preds[1]],
   bio14 = xyz[which.max(xyz$z), my_preds[2]],
   occ_prob = max(xyz$z)
@@ -145,30 +145,30 @@ optimas <- rbind(optimas, list(
 ## Splitting data into training and testing 
 
 # Our training data is the dataframe with the samples itself
-sp_train <- sp_thinned_1000_5
+sp_train <- sp_thin_checker_1000_5
 
 # We use the same data for testing the predictions
 summary(sp_test)
 
 # Calculate same weights for presences and absences for regression based algorithms
 # sum of all pseudo abs has the same weight as the sum of presences
-weights <- ifelse(sp_thinned_1000_5$occ==1, 1, 
-                  sum(sp_thinned_1000_5$occ==1) / sum(sp_thinned_1000_5$occ==0))
+weights <- ifelse(sp_thin_checker_1000_5$occ==1, 1, 
+                  sum(sp_thin_checker_1000_5$occ==1) / sum(sp_thin_checker_1000_5$occ==0))
 
 
 # Check for multicollinearity between our environmental variables
-cor_mat <- cor(sp_thinned_1000_5[,(5:23)], method='spearman')
-var_sel <- select07(X=sp_thinned_1000_5[,c(5:23)], 
-                    y=sp_thinned_1000_5$occ, 
+cor_mat <- cor(sp_thin_checker_1000_5[,(7:25)], method='spearman')
+var_sel <- select07(X=sp_thin_checker_1000_5[,c(7:25)], 
+                    y=sp_thin_checker_1000_5$occ, 
                     threshold=0.7, weights = weights)
 
 # Inspect weakly correlated variables
 var_sel$pred_sel
-#Output: [1] "bio5"  "bio17" "bio11" "bio16" "bio15" "bio9"  "bio3" 
+#Output: [1] "bio5"  "bio17" "bio11" "bio16" "bio9"  "bio15" "bio3" 
 
 print(cor_mat)
 # We are picking two variables representing temperature and precipitation
-# The initial variables 'bio10 & 'bio14' have correlation of -0.48
+# The initial variables 'bio10 & 'bio14' have correlation of -0.56
 my_preds <- c('bio10','bio14')
 
 ## GLM 
@@ -201,7 +201,7 @@ wireframe(z ~ bio10 + bio14, data = xyz, zlab = list("Occurrence prob.", rot=90)
 # Identify the optimal parameters where the predicted probability is highest
 # Create a dataframe for optimas
 optimas <- rbind(optimas, list(
-  model_name = "glm_1000x5",
+  model_name = "glm_1000x5_chb",
   bio10 = xyz[which.max(xyz$z), my_preds[1]],
   bio14 = xyz[which.max(xyz$z), my_preds[2]],
   occ_prob = max(xyz$z)
@@ -235,7 +235,7 @@ wireframe(z ~ bio10 + bio14, data = xyz, zlab = list("Occurrence prob.", rot=90)
 # Identify the optimal parameters where the predicted probability is highest
 # Create a dataframe for optimas
 optimas <- rbind(optimas, list(
-  model_name = "gam_1000x5",
+  model_name = "gam_1000x5_chb",
   bio10 = xyz[which.max(xyz$z), my_preds[1]],
   bio14 = xyz[which.max(xyz$z), my_preds[2]],
   occ_prob = max(xyz$z)
@@ -253,32 +253,32 @@ optimas <- rbind(optimas, list(
 ## Splitting data into training and testing 
 
 # Our training data is the dataframe with the samples itself
-sp_train <- sp_thinned_1000_3
+sp_train <- sp_thin_checker_1000_3
 
 # We use the same data for testing the predictions
 summary(sp_test)
 
 # Calculate same weights for presences and absences for regression based algorithms
 # sum of all pseudo abs has the same weight as the sum of presences
-weights <- ifelse(sp_thinned_1000_3$occ==1, 1, 
-                  sum(sp_thinned_1000_3$occ==1) / sum(sp_thinned_1000_3$occ==0))
+weights <- ifelse(sp_thin_checker_1000_3$occ==1, 1, 
+                  sum(sp_thin_checker_1000_3$occ==1) / sum(sp_thin_checker_1000_3$occ==0))
 
 
 # Check for multicollinearity between our environmental variables
-cor_mat <- cor(sp_thinned_1000_3[,(5:23)], method='spearman')
-var_sel <- select07(X=sp_thinned_1000_3[,c(5:23)], 
-                    y=sp_thinned_1000_3$occ, 
+cor_mat <- cor(sp_thin_checker_1000_3[,(7:25)], method='spearman')
+var_sel <- select07(X=sp_thin_checker_1000_3[,c(7:25)], 
+                    y=sp_thin_checker_1000_3$occ, 
                     threshold=0.7, weights = weights)
 
 # Inspect weakly correlated variables
 var_sel$pred_sel
 
-#Output: [1] "bio5"  "bio12" "bio11" "bio8"  "bio15" "bio9"  "bio3" 
+#Output: [1] "bio5"  "bio17" "bio11" "bio16" "bio8"  "bio9"  "bio15" "bio3" 
 
 print(cor_mat)
 
 # We are picking two variables representing temperature and precipitation
-# The initial variables 'bio10 & 'bio14' have correlation of -0.51 
+# The initial variables 'bio10 & 'bio14' have correlation of -0.62 
 my_preds <- c('bio10','bio14')
 
 ## GLM 
@@ -312,7 +312,7 @@ wireframe(z ~ bio10 + bio14, data = xyz, zlab = list("Occurrence prob.", rot=90)
 # Identify the optimal parameters where the predicted probability is highest
 # Create a dataframe for optimas
 optimas <- rbind(optimas, list(
-  model_name = "glm_1000x3",
+  model_name = "glm_1000x3_chb",
   bio10 = xyz[which.max(xyz$z), my_preds[1]],
   bio14 = xyz[which.max(xyz$z), my_preds[2]],
   occ_prob = max(xyz$z)
@@ -347,7 +347,7 @@ wireframe(z ~ bio10 + bio14, data = xyz, zlab = list("Occurrence prob.", rot=90)
 # Identify the optimal parameters where the predicted probability is highest
 # Create a dataframe for optimas
 optimas <- rbind(optimas, list(
-  model_name = "gam_1000x3",
+  model_name = "gam_1000x3_chb",
   bio10 = xyz[which.max(xyz$z), my_preds[1]],
   bio14 = xyz[which.max(xyz$z), my_preds[2]],
   occ_prob = max(xyz$z)
@@ -362,29 +362,29 @@ optimas <- rbind(optimas, list(
 ## Splitting data into training and testing 
 
 # Our training data is the dataframe with the samples itself
-sp_train <- sp_thinned_1000_1
+sp_train <- sp_thin_checker_1000_1
 
 # We use the same data for testing the predictions
 summary(sp_test)
 
 # Calculate same weights for presences and absences for regression based algorithms
 # sum of all pseudo abs has the same weight as the sum of presences
-weights <- ifelse(sp_thinned_1000_1$occ==1, 1, 
-                  sum(sp_thinned_1000_1$occ==1) / sum(sp_thinned_1000_1$occ==0))
+weights <- ifelse(sp_thin_checker_1000_1$occ==1, 1, 
+                  sum(sp_thin_checker_1000_1$occ==1) / sum(sp_thin_checker_1000_1$occ==0))
 
 # Check for multicollinearity between our environmental variables
-cor_mat <- cor(sp_thinned_1000_1[,(5:23)], method='spearman')
-var_sel <- select07(X=sp_thinned_1000_1[,c(5:23)], 
-                    y=sp_thinned_1000_1$occ, 
+cor_mat <- cor(sp_thin_checker_1000_1[,(7:25)], method='spearman')
+var_sel <- select07(X=sp_thin_checker_1000_1[,c(7:25)], 
+                    y=sp_thin_checker_1000_1$occ, 
                     threshold=0.7, weights=weights)
 
 # Inspect weakly correlated variables
 var_sel$pred_sel
 cor_mat
-#Output: [1] "bio10" "bio17" "bio16" "bio4"  "bio6"  "bio15" "bio9"  "bio3" 
+#Output: [1] "bio10" "bio17" "bio7"  "bio16" "bio6"  "bio9"  "bio15" "bio3" 
 
 # We are picking two variables representing temperature and precipitation
-# The initial variables 'bio10 & 'bio14' have correlation of -0.56
+# The initial variables 'bio10 & 'bio14' have correlation of -0.60
 my_preds <- c('bio10','bio14')
 
 ## GLM 
@@ -416,7 +416,7 @@ wireframe(z ~ bio10 + bio14, data = xyz, zlab = list("Occurrence prob.", rot=90)
 # Identify the optimal parameters where the predicted probability is highest
 # Create a dataframe for optimas
 optimas <- rbind(optimas, list(
-  model_name = "glm_1000x1",
+  model_name = "glm_1000x1_chb",
   bio10 = xyz[which.max(xyz$z), my_preds[1]],
   bio14 = xyz[which.max(xyz$z), my_preds[2]],
   occ_prob = max(xyz$z)
@@ -451,7 +451,7 @@ wireframe(z ~ bio10 + bio14, data = xyz, zlab = list("Occurrence prob.", rot=90)
 # Identify the optimal parameters where the predicted probability is highest
 # Create a dataframe for optimas
 optimas <- rbind(optimas, list(
-  model_name = "gam_1000x1",
+  model_name = "gam_1000x1_chb",
   bio10 = xyz[which.max(xyz$z), my_preds[1]],
   bio14 = xyz[which.max(xyz$z), my_preds[2]],
   occ_prob = max(xyz$z)
@@ -463,10 +463,10 @@ optimas <- rbind(optimas, list(
 
 ## 5. Comparing all algorithms
 
-(comp_perf <- rbind(glm_1000x10 = perf_vs1000_10_glm, gam_1000x10 = perf_vs1000_10_gam,
-                    glm_1000x5 = perf_vs1000_5_glm, gam_1000x5 = perf_vs1000_5_gam,
-                    glm_1000x3 = perf_vs1000_3_glm, gam_1000x3 = perf_vs1000_3_gam,
-                    glm_1000x1 = perf_vs1000_1_glm, gam_1000x1 = perf_vs1000_1_gam))
+(comp_perf <- rbind(glm_1000x10_chb = perf_vs1000_10_glm, gam_1000x10_chb = perf_vs1000_10_gam,
+                    glm_1000x5_chb = perf_vs1000_5_glm, gam_1000x5_chb = perf_vs1000_5_gam,
+                    glm_1000x3_chb = perf_vs1000_3_glm, gam_1000x3_chb = perf_vs1000_3_gam,
+                    glm_1000x1_chb = perf_vs1000_1_glm, gam_1000x1_chb = perf_vs1000_1_gam))
 
 # Adding the optimas data
 
@@ -478,4 +478,4 @@ comp_perf$opt_occ_prob <- optimas$occ_prob
 comp_perf <- data.frame(model_name=row.names(comp_perf),comp_perf)
 
 # Adapt the file path to your folder structure
-write.table(comp_perf, file='data/SDM_alg_perf_1000x10x5x3x1.txt', row.names=F)
+write.table(comp_perf, file='data/SDM_alg_perf_1000x10x5x3x1_chb.txt', row.names=F)
