@@ -113,7 +113,6 @@ optimas <- data.frame(
 
 
 
-
 ## GAM 
 # Fit GAM with spline smoother
 vs50_10_gam <- mgcv::gam(occ ~ s(bio10,k=4) + s(bio14, k=4),

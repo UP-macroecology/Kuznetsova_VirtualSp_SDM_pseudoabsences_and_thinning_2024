@@ -165,7 +165,7 @@ points(sp_thinned_100_1[,1:2], pch=19, col=c('black', 'red')[as.factor(sp_thinne
 mtext("Thinned absences with thin(). Data with 100 presences.", outer=TRUE, line=2, cex=1.5)
 
 # Save the current plot to a PNG file
-dev.copy(png, filename="data/thinned_abs_plots_100prsncs.png", width=1600, height=1200, res=200)
+dev.copy(png, filename="data/thinned_abs_plots_100_spThin.png", width=1600, height=1200, res=200)
 dev.off()
 
 
