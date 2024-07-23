@@ -9,7 +9,7 @@ library(mecofun)
 
 ## Uploading the data 
 sim_sp1_pa.df <- read.csv("data/VS.dataframe.csv")
-load('data/VS_Presx50Absx10_thinned.RData')
+# For the thinned data, run the scripts under number 5.
 
 # We will be testing the model prediction ability on the virtual truth of our species
 # First we need to make sure the dataframe has the same column names and is 
