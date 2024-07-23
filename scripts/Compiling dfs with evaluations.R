@@ -26,6 +26,20 @@ GLMs_GAMs_eval_1000_chb <- read.table('data/SDM_alg_perf_1000x10x5x3x1_chb.txt',
 
 RF_eval_20_spThin_chb <- read.table('data/RF_perf_20x10x5x3x1_spThin_chb.txt',
                                       header=TRUE, sep=" ")
+
+RF_eval_50_spThin_chb <- read.table('data/RF_perf_50x10x5x3x1_spThin_chb.txt',
+                                    header=TRUE, sep=" ")
+
+RF_eval_100_spThin_chb <- read.table('data/RF_perf_100x10x5x3x1_spThin_chb.txt',
+                                    header=TRUE, sep=" ")
+
+
+
+
+
+
+
+
 # Binding the dataframes together
 
 SDMs_evals <- rbind(GLMs_GAMs_eval_20_spThin, GLMs_GAMs_eval_50_spThin,
@@ -33,7 +47,8 @@ SDMs_evals <- rbind(GLMs_GAMs_eval_20_spThin, GLMs_GAMs_eval_50_spThin,
                          GLMs_GAMs_eval_1000_spThin, GLMs_GAMs_eval_20_chb, 
                          GLMs_GAMs_eval_50_chb, GLMs_GAMs_eval_100_chb, 
                          GLMs_GAMs_eval_500_chb, GLMs_GAMs_eval_1000_chb, 
-                         RF_eval_20_spThin_chb)
+                         RF_eval_20_spThin_chb, RF_eval_50_spThin_chb,
+                    RF_eval_100_spThin_chb)
 
 # Adding a TRUE-FALSE marker for the predictions made within/outside of the 
 # natural environmental range
