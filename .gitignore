@@ -7,3 +7,5 @@ data/SDM_alg_perf_50x10x5x3x1.txt
 data/SDM_alg_perf_100x10x5x3x1.txt
 data/SDM_alg_perf_500x10x5x3x1.txt
 data/SDM_alg_perf_1000x10x5x3x1.txt
+data/GLMs_GAMs_evals(spThin30,nostep).csv
+data/GLMs_GAMs_evals(spThin30,checkb,nostep).csv
