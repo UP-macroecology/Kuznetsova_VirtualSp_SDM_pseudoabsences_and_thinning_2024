@@ -1,6 +1,7 @@
 library(geodata)       
 library(terra)         
 library(virtualspecies) 
+#-------------------
 
 # Load VS and region mask data
 sim_sp1_pa <- readRDS("data/MyVirtualSpecies.RDS")

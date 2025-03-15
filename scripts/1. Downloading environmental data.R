@@ -2,6 +2,9 @@ library(rgbif)
 library(terra)         
 library(geodata)       
 library(sf)            
+#-------------------
+
+# Downloading environmental data and creating a region mask.
 
 ## (a). Downloading the environmental data ----
 

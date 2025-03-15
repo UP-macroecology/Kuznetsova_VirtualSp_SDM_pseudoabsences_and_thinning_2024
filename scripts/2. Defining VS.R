@@ -1,9 +1,10 @@
-## 2. Creating virtual species (VS)
-
 library(virtualspecies) 
 library(geodata)       
-library(terra)         
+library(terra)    
 
+#---------------------------
+
+## Creating virtual species (VS).
 
 ## (a). Defining VS by their response to the environmental variables -----
 
@@ -11,6 +12,7 @@ library(terra)
 # of the virtual species. Here we create a species inhabiting the coastal region of
 # Australia with the according average values of annual temperature and 
 # precipitation. The species is inspired by the Eastern Water Dragon.
+
 
 # The first step is to provide to the helper function formatFunctions which 
 # responses we want for which variables
