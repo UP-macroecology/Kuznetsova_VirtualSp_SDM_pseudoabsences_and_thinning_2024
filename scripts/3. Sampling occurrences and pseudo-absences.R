@@ -113,6 +113,8 @@ generate_buffers <- function(presence_data, sample_sizes) {
 
 buffer_data <- generate_buffers(presence_data, sample_sizes)
 
+# Save buffer_data
+saveRDS(buffer_data, "data/buffer_data.RDS")
 
 
 
@@ -188,4 +190,5 @@ generate_pseudo_absences <- function(presence_data, buffer_data, clim_data, samp
 # Usage
 pseudo_absence_data <- generate_pseudo_absences(presence_data, buffer_data, australia_clim1km, sample_sizes, pa_ratios)
 
-summary(pseudo_absence_data)
+# Save pseudo_absence_data
+saveRDS(pseudo_absence_data, "data/pseudo_absence_data.RDS")
