@@ -1,13 +1,10 @@
-## Sampling occurrences and creating pseudo-absences
-library(geodata)       # Download and manage geographic data for analysis
-library(terra)         # Manipulate and analyze geographic data
-library(virtualspecies) # Generate virtual species distribution data for simulations
+library(geodata)       
+library(terra)         
+library(virtualspecies) 
 
-
-# Make sure you download the virtual species you created and
-# upload the raster file of our region
+# Load VS and region mask data
 sim_sp1_pa <- readRDS("data/MyVirtualSpecies.RDS")
-australia_clim1km <- rast("data/australia_clim1km.tif") 
+australia_clim1km <- rast("data/australia_clim1km.tif")
 
 ## a. Sampling  occurrences (x20, x50, x100, x500, x1000) ----
 
@@ -17,37 +14,47 @@ australia_clim1km <- rast("data/australia_clim1km.tif")
 # number of sampling biases, such as uneven spatial sampling intensity, 
 # probability of detection, and probability of error.
 
-# We will sample 'presence only' occurrences
-# For later comparison we create data frames of 20, 50, 100, 500 and 1000 points
+# The function sample_presences() generates presence points for different 
+# sample sizes and returns a list called "presence_data" containing occurrence 
+# data, coordinates, and a SpatVector for each sample size.
 
-set.seed(123) #set the seed for reproducibility
+# Define sample sizes
+sample_sizes <- c(20, 50, 100, 500, 1000)
+set.seed(123) # Set seed for reproducibility
 
-sample.occ20 <- sampleOccurrences(sim_sp1_pa,
-                                     n = 20, # The number of points to sample
-                                     type = "presence only")
-sample.occ50 <- sampleOccurrences(sim_sp1_pa,
-                                       n = 50, # The number of points to sample
-                                       type = "presence only")
-sample.occ100 <- sampleOccurrences(sim_sp1_pa,
-                                       n = 100, # The number of points to sample
-                                       type = "presence only")
-sample.occ500 <- sampleOccurrences(sim_sp1_pa,
-                                       n = 500, # The number of points to sample
-                                       type = "presence only")
-sample.occ1000 <- sampleOccurrences(sim_sp1_pa,
-                                       n = 1000, # The number of points to sample
-                                       type = "presence only")
 
-summary(sample.occ20)
+sample_presences <- function(sim_sp, clim_data, sample_sizes) {
+  
+  results <- list()
+  
+  for (n in sample_sizes) {
+    # Sample occurrences
+    sample_occurrences <- sampleOccurrences(sim_sp, n = n, type = "presence only")
+    
+    # Extract coordinates
+    sp_coords <- sample_occurrences$sample.points[1:2]
+    
+    # Create presence vector
+    presences <- terra::vect(as.matrix(sp_coords), crs=crs(clim_data))
+    
+    # Store results in a structured way
+    results[[as.character(n)]] <- list(
+      occurrences = sample_occurrences,
+      coords = sp_coords,
+      presences = presences
+    )
+  }
+  
+  return(results)
+}
 
-# Since our sample points only have observed occurrences matching real occurrences,
-# we will remove the redundant data and only leave the coordinates.
 
-sp_coords20 <- sample.occ20$sample.points[1:2]
-sp_coords50 <- sample.occ50$sample.points[1:2]
-sp_coords100 <- sample.occ100$sample.points[1:2]
-sp_coords500 <- sample.occ500$sample.points[1:2]
-sp_coords1000 <- sample.occ1000$sample.points[1:2]
+set.seed(123) # Set seed for reproducibility
+presence_data <- sample_presences(sim_sp1_pa, australia_clim1km, sample_sizes)
+
+
+
+
 
 
 ## b. Creating a 200 km buffer for pseudo-absences ----------------
@@ -55,67 +62,52 @@ sp_coords1000 <- sample.occ1000$sample.points[1:2]
 # We place a buffer of 200 km around our virtual species records and sample
 # background points randomly from within the buffer but excluding presence locations.
 
-# Make SpatVector:
-presences20 <- terra::vect(as.matrix(sp_coords20), crs=crs(australia_clim1km))
-presences50 <- terra::vect(as.matrix(sp_coords50), crs=crs(australia_clim1km))
-presences100 <- terra::vect(as.matrix(sp_coords100), crs=crs(australia_clim1km))
-presences500 <- terra::vect(as.matrix(sp_coords500), crs=crs(australia_clim1km))
-presences1000 <- terra::vect(as.matrix(sp_coords1000), crs=crs(australia_clim1km))
+# The function generate_buffers() creates a 200 km buffer around the presence points 
+# created in (a), applies a background mask, and excludes presence locations 
+# from the buffer, storing the results as SpatVector and SpatRaster objects in 
+# the list called "buffer_data".
 
-# Then, place a buffer of 200 km radius around our presence points
-v_buf20 <- terra::buffer(presences20, width=200000)
-v_buf50 <- terra::buffer(presences50, width=200000)
-v_buf100 <- terra::buffer(presences100, width=200000)
-v_buf500 <- terra::buffer(presences500, width=200000)
-v_buf1000 <- terra::buffer(presences1000, width=200000)
-
-# Create a background mask with target resolution and extent from climate layers
-# Set all raster cells outside the buffer to NA.
+# Create background mask
 bg <- australia_clim1km[[1]]
-
-# Save the mask as a .grd file for future use
 writeRaster(bg, "data/bg_australia_mask.grd", overwrite=TRUE)
 values(bg)[!is.na(values(bg))] <- 1
 
 
-## Plot the buffer for 20 sampled presences
-region_buf20 <- terra::mask(bg, v_buf20)
-plot(bg, col='grey90', legend=F)
-plot(region_buf20, add=T, col='grey60', legend=F)
-# Exclude presence locations:
-sp_cells20 <- terra::extract(region_buf20, presences20, cells=T)$cell
-region_buf_exclp20 <- region_buf20
-values(region_buf_exclp20)[sp_cells20] <- NA
+generate_buffers <- function(presence_data, sample_sizes) {
+  
+  results <- list()
+  
+  for (n in sample_sizes) {
+    # Access SpatVector from presence_data list
+    presences <- presence_data[[as.character(n)]]$presences
+    
+    # Create buffer around presence points
+    buffer_obj <- terra::buffer(presences, width=200000)
+    
+    # Mask the buffer using the background raster
+    region_buf_obj <- terra::mask(bg, buffer_obj)
+    
+    # Extract presence locations within the buffer
+    sp_cells <- terra::extract(region_buf_obj, presences, cells=TRUE)$cell
+    
+    # Create a copy of the region buffer and exclude presence locations
+    region_buf_exclp_obj <- region_buf_obj
+    values(region_buf_exclp_obj)[sp_cells] <- NA
+    
+    # Store results in a structured list
+    results[[as.character(n)]] <- list(
+      buffer = buffer_obj,
+      region_buf = region_buf_obj,
+      region_buf_exclp = region_buf_exclp_obj
+    )
+    
+    # Plot buffer
+    plot(bg, col='grey90', legend=FALSE)
+    plot(region_buf_obj, add=TRUE, col='grey60', legend=FALSE)
+  }
+  
+  return(results)
+}
 
+buffer_data <- generate_buffers(presence_data, sample_sizes)
 
-## for 50 sampled presences
-# Exclude presence locations:
-region_buf50 <- terra::mask(bg, v_buf50)
-sp_cells50 <- terra::extract(region_buf50, presences50, cells=T)$cell
-region_buf_exclp50 <- region_buf50
-values(region_buf_exclp50)[sp_cells50] <- NA
-plot(bg, col='grey90', legend=F)
-plot(region_buf50, add=T, col='grey60', legend=F)
-
-## for 100 sampled presences
-# Exclude presence locations:
-region_buf100 <- terra::mask(bg, v_buf100)
-sp_cells100 <- terra::extract(region_buf100, presences100, cells=T)$cell
-region_buf_exclp100 <- region_buf100
-values(region_buf_exclp100)[sp_cells100] <- NA
-
-
-## for 500 sampled presences
-# Exclude presence locations:
-region_buf500 <- terra::mask(bg, v_buf500)
-sp_cells500 <- terra::extract(region_buf500, presences500, cells=T)$cell
-region_buf_exclp500 <- region_buf500
-values(region_buf_exclp500)[sp_cells500] <- NA
-
-
-## for 1000 sampled presences
-# Exclude presence locations:
-region_buf1000 <- terra::mask(bg, v_buf1000)
-sp_cells1000 <- terra::extract(region_buf1000, presences1000, cells=T)$cell
-region_buf_exclp1000 <- region_buf1000
-values(region_buf_exclp1000)[sp_cells1000] <- NA

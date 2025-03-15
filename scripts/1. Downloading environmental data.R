@@ -1,11 +1,11 @@
-# Installing the necessary packages
-library(rgbif)         # Access Global Biodiversity Information Facility (GBIF) data
-library(terra)         # Manipulate and analyze geographic data (replacement for 'raster' package)
-library(geodata)       # Download and manage geographic data for analysis
-library(sf)            # To convert a resterized mask file to a shape file
+library(rgbif)         
+library(terra)         
+library(geodata)       
+library(sf)            
 
 ## (a). Downloading the environmental data ----
 
+# Downloaded "bio 30s" from https://www.worldclim.org/data/worldclim21.html
 clim1km <- worldclim_global(var = 'bio', #choosing global climate variables
                             res = 0.5, #resolution of 30 seconds ~ 1 km
                             download = T, 

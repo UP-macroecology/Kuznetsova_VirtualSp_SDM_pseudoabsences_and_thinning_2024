@@ -1,9 +1,8 @@
 ## 2. Creating virtual species (VS)
 
-library(virtualspecies) # Generate virtual species distribution data for simulations
-library(geodata)       # Download and manage geographic data for analysis
-library(terra)         # Manipulate and analyze geographic data 
-
+library(virtualspecies) 
+library(geodata)       
+library(terra)         
 
 
 ## (a). Defining VS by their response to the environmental variables -----
@@ -38,6 +37,8 @@ sim_sp1
 
 
 
+
+
 ## (b). Conversion of environmental suitability into probability of occurrence ----
 
 # We use the logistic function for the probabilities to obtain values 
@@ -64,9 +65,12 @@ sim_sp1_pa.df <- as.data.frame(sim_sp1_pa$pa.raster, xy = TRUE)
 write.csv(sim_sp1_pa.df, file = "data/VS.dataframe.csv", row.names = FALSE)
 
 
+
+
+
 ## c. Exploring the virtual species ----
 
-# Here are various functions to look at the set-up parameters for our virtual species.
+# Here are various helpful functions to look at the set-up parameters for the virtual species.
 
 plotResponse(sim_sp1_pa) #plot the species-environment relationship
 plotSuitabilityToProba(sim_sp1_pa) #plot the relationship between suitability and probability of occurrence
@@ -75,6 +79,7 @@ sim_sp1_pa$suitab.raster
 sim_sp1_pa$details$variables
 sim_sp1_pa$details$parameters
 
-# We an save the virtual species objects for later use
-saveRDS(sim_sp1_pa, file = "MyVirtualSpecies.RDS") 
-sim_sp1_pa <- readRDS("MyVirtualSpecies.RDS")
+# Saving the virtual species objects for later use
+saveRDS(sim_sp1_pa, file = "data/MyVirtualSpecies.RDS") 
+sim_sp1_pa <- readRDS("data/MyVirtualSpecies.RDS")
+
