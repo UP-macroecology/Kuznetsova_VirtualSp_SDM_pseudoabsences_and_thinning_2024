@@ -21,10 +21,55 @@ library(spThin)
 # distribution.
 
 
-# Load region raster, buffer and pseudo-absence data
+# Load region raster and pseudo-absence data
 australia_clim1km <- rast("data/australia_clim1km.tif") 
-buffer_data <- readRDS("data/buffer_data.RDS")
 pseudo_absence_data <- readRDS("data/pseudo_absence_data.RDS")
+
+# Recreate the buffer
+bg <- rast("data/bg_australia_mask.grd")
+sample_sizes <- c(20, 50, 100, 500, 1000)
+set.seed(123) # Set seed for reproducibility
+
+
+generate_buffers <- function(presence_data, sample_sizes) {
+  
+  results <- list()
+  
+  for (n in sample_sizes) {
+    # Access SpatVector from presence_data list
+    presences <- presence_data[[as.character(n)]]$presences
+    
+    # Create buffer around presence points
+    buffer_obj <- terra::buffer(presences, width=200000)
+    
+    # Mask the buffer using the background raster
+    region_buf_obj <- terra::mask(bg, buffer_obj)
+    
+    # Extract presence locations within the buffer
+    sp_cells <- terra::extract(region_buf_obj, presences, cells=TRUE)$cell
+    
+    # Create a copy of the region buffer and exclude presence locations
+    region_buf_exclp_obj <- region_buf_obj
+    values(region_buf_exclp_obj)[sp_cells] <- NA
+    
+    # Store results in a structured list
+    results[[as.character(n)]] <- list(
+      buffer = buffer_obj,
+      region_buf = region_buf_obj,
+      region_buf_exclp = region_buf_exclp_obj
+    )
+    
+    # Plot buffer
+    plot(bg, col='grey90', legend=FALSE)
+    plot(region_buf_obj, add=TRUE, col='grey60', legend=FALSE)
+  }
+  
+  return(results)
+}
+
+buffer_data <- generate_buffers(presence_data, sample_sizes)
+
+
 
 
 ## a. Spatial thinning with spThin() -----
@@ -67,8 +112,6 @@ thinned_spThin_data <- thin_spThin(pseudo_absence_data, australia_clim1km)
 # Save thinned_spThin_data
 saveRDS(thinned_spThin_data, "data/thinned_spThin_data.RDS")
 
-#thinned_spThin_data <- readRDS("data/thinned_spThin_data.RDS")
-
 
 
 ## b. Spatial thinning to a checkerboard method ----
@@ -100,8 +143,6 @@ thinned_checker_data <- thin_checkerboard(pseudo_absence_data, buffer_data)
 
 # Save thinned_checker_data
 saveRDS(thinned_checker_data, "data/thinned_checker_data.RDS")
-
-thinned_checker_data <- readRDS("data/thinned_checker_data.RDS")
 
 
 

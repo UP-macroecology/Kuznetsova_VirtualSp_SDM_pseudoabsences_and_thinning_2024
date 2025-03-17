@@ -71,8 +71,9 @@ presence_data <- sample_presences(sim_sp1_pa, australia_clim1km, sample_sizes)
 
 # Create background mask
 bg <- australia_clim1km[[1]]
-writeRaster(bg, "data/bg_australia_mask.grd", overwrite=TRUE)
 values(bg)[!is.na(values(bg))] <- 1
+writeRaster(bg, "data/bg_australia_mask.grd", overwrite=TRUE)
+
 
 
 generate_buffers <- function(presence_data, sample_sizes) {
@@ -113,8 +114,9 @@ generate_buffers <- function(presence_data, sample_sizes) {
 
 buffer_data <- generate_buffers(presence_data, sample_sizes)
 
-# Save buffer_data
-saveRDS(buffer_data, "data/buffer_data.RDS")
+# Since buffer_data now contains both, SpatVector and SpatRaster data, saving it 
+# and reloading leads to the corruption of the data. So the buffer data has to be regenerated
+# if needed again (e.g. script 4).
 
 
 
