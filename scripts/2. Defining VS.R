@@ -13,7 +13,7 @@ library(terra)
 # Australia with the according average values of annual temperature and 
 # precipitation. The species is inspired by the Eastern Water Dragon.
 
-
+set.seed(123)
 # The first step is to provide to the helper function formatFunctions which 
 # responses we want for which variables
 optima_temp = 18 # optimal mean temperature of the warmest quarter; 
@@ -62,9 +62,9 @@ plotSuitabilityToProba(sim_sp1_pa)
 summary(as.data.frame(sim_sp1_pa$pa.raster, xy = TRUE))
 
 # Save true presences and absences as a separate dataframe.
-sim_sp1_pa.df <- as.data.frame(sim_sp1_pa$pa.raster, xy = TRUE)
+#sim_sp1_pa.df <- as.data.frame(sim_sp1_pa$pa.raster, xy = TRUE)
 
-write.csv(sim_sp1_pa.df, file = "data/VS.dataframe.csv", row.names = FALSE)
+#write.csv(sim_sp1_pa.df, file = "data/VS.dataframe.csv", row.names = FALSE)
 
 
 

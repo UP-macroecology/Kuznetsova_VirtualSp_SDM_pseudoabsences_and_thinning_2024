@@ -61,3 +61,5 @@ plot(australia_clim1km[[c("bio10", "bio14")]])
 # Save the cropped climate data for Australia as a raster file
 writeRaster(australia_clim1km, filename = "data/australia_clim1km.tif",
             overwrite = TRUE)
+
+# australia_clim1km <- rast("data/australia_clim1km.tif")

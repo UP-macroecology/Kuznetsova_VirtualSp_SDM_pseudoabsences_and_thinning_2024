@@ -194,3 +194,5 @@ pseudo_absence_data <- generate_pseudo_absences(presence_data, buffer_data, aust
 
 # Save pseudo_absence_data
 saveRDS(pseudo_absence_data, "data/pseudo_absence_data.RDS")
+
+#pseudo_absence_data <- readRDS("data/pseudo_absence_data.RDS")
