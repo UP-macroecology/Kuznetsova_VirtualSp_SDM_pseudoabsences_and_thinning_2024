@@ -156,35 +156,35 @@ saveRDS(thinned_checker_data, "data/thinned_checker_data.RDS")
 par(mfrow = c(3, 2), oma = c(0, 0, 4, 0))  # 3x2 layout for plots
 
 #
-plot(australia_clim1km[[1]], col = "grey90", legend = FALSE, main = "500 pres, x10")
-points(pseudo_absence_data[["500_pa10"]][, 1:2], pch = 19, 
-       col = c("black", "red")[as.factor(pseudo_absence_data[["500_pa10"]]$occ)], cex = 0.3)
+plot(australia_clim1km[[1]], col = "grey90", legend = FALSE, main = "100 pres, x10")
+points(pseudo_absence_data[["100_pa10"]][, 1:2], pch = 19, 
+       col = c("black", "red")[as.factor(pseudo_absence_data[["100_pa10"]]$occ)], cex = 0.3)
 
-plot(australia_clim1km[[1]], col = "grey90", legend = FALSE, main = "500 pres, x5")
-points(pseudo_absence_data[["500_pa5"]][, 1:2], pch = 19, 
-       col = c("black", "red")[as.factor(pseudo_absence_data[["500_pa5"]]$occ)], cex = 0.3)
+plot(australia_clim1km[[1]], col = "grey90", legend = FALSE, main = "100 pres, x5")
+points(pseudo_absence_data[["100_pa5"]][, 1:2], pch = 19, 
+       col = c("black", "red")[as.factor(pseudo_absence_data[["100_pa5"]]$occ)], cex = 0.3)
 
 
-plot(australia_clim1km[[1]], col = "grey90", legend = FALSE, main = "500 pres, x10 (spThin)")
-points(thinned_spThin_data[["500_pa10"]][, 1:2], pch = 19, 
-       col = c("black", "red")[as.factor(thinned_spThin_data[["500_pa10"]]$occ)], cex = 0.3)
+plot(australia_clim1km[[1]], col = "grey90", legend = FALSE, main = "100 pres, x10 (spThin)")
+points(thinned_spThin_data[["100_pa10"]][, 1:2], pch = 19, 
+       col = c("black", "red")[as.factor(thinned_spThin_data[["100_pa10"]]$occ)], cex = 0.3)
 
-plot(australia_clim1km[[1]], col = "grey90", legend = FALSE, main = "Thinned: 500 pres, x5 (spThin)")
-points(thinned_spThin_data[["500_pa5"]][, 1:2], pch = 19, 
-       col = c("black", "red")[as.factor(thinned_spThin_data[["500_pa5"]]$occ)], cex = 0.3)
+plot(australia_clim1km[[1]], col = "grey90", legend = FALSE, main = "100 pres, x5 (spThin)")
+points(thinned_spThin_data[["100_pa5"]][, 1:2], pch = 19, 
+       col = c("black", "red")[as.factor(thinned_spThin_data[["100_pa5"]]$occ)], cex = 0.3)
 
-plot(australia_clim1km[[1]], col = "grey90", legend = FALSE, main = "500 pres, x10 (checker)")
-points(thinned_checker_data[["500_pa10"]][, 3:4], pch = 19, 
-       col = c("black", "red")[as.factor(thinned_checker_data[["500_pa10"]]$occ)], cex = 0.3)
+plot(australia_clim1km[[1]], col = "grey90", legend = FALSE, main = "100 pres, x10 (checker)")
+points(thinned_checker_data[["100_pa10"]][, 3:4], pch = 19, 
+       col = c("black", "red")[as.factor(thinned_checker_data[["100_pa10"]]$occ)], cex = 0.3)
 
-plot(australia_clim1km[[1]], col = "grey90", legend = FALSE, main = "500 pres, x5 (checker)")
-points(thinned_checker_data[["500_pa5"]][, 3:4], pch = 19, 
-       col = c("black", "red")[as.factor(thinned_checker_data[["500_pa5"]]$occ)], cex = 0.3)
+plot(australia_clim1km[[1]], col = "grey90", legend = FALSE, main = "100 pres, x5 (checker)")
+points(thinned_checker_data[["100_pa5"]][, 3:4], pch = 19, 
+       col = c("black", "red")[as.factor(thinned_checker_data[["100_pa5"]]$occ)], cex = 0.3)
 
 # Add title
-mtext("Thinned Absences vs. Unthinned ones", outer = TRUE, line = 2, cex = 1.5)
+mtext("Thinned Data Method Comparison", outer = TRUE, line = 2, cex = 1.5)
 
 # Save plot
-dev.copy(png, filename = "data/thinned_abs_example.png", width = 1600, height = 1200, res = 200)
+dev.copy(png, filename = "plots/4_thinned_data_comparison.png", width = 1600, height = 1200, res = 200)
 dev.off()
 
