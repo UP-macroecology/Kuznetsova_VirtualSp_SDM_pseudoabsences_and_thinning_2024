@@ -4,6 +4,8 @@ library(terra)
 library(spThin)        
 
 #-----------------------
+# 4. Spatial thinning
+
 # The following script performs spatial thinning of presence and pseudo-absence points 
 # using two methods: the spThin() function and a checkerboard method. The goal is to 
 # reduce spatial autocorrelation and improve species distribution modeling. 

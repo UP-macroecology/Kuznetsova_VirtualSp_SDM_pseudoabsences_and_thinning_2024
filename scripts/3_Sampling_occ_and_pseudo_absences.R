@@ -3,6 +3,7 @@ library(terra)
 library(virtualspecies) 
 
 #-------------------
+# 3. Sampling occurrences and absences
 
 # Load VS and region mask data
 sim_sp1_pa <- readRDS("data/MyVirtualSpecies.RDS")
@@ -10,15 +11,14 @@ australia_clim1km <- rast("data/australia_clim1km.tif")
 
 ## a. Sampling  occurrences (x20, x50, x100, x500, x1000) ----
 
-# This can be done with the function sampleOccurrences, with which you can 
-# sample either “presence-absence” or “presence only” occurrence data. 
-# The function sampleOccurrences also provides the possibility to introduce a 
-# number of sampling biases, such as uneven spatial sampling intensity, 
-# probability of detection, and probability of error.
+# Function sampleOccurrences from virtualspecies libraryallows to sample either 
+# “presence-absence” or “presence only” occurrence data. The function sampleOccurrences 
+# also provides the possibility to introduce a number of sampling biases, such as
+# uneven spatial sampling intensity, probability of detection, and probability of error.
 
-# The function sample_presences() generates presence points for different 
-# sample sizes and returns a list called "presence_data" containing occurrence 
-# data, coordinates, and a SpatVector for each sample size.
+# The function sample_presences() uses the function sampleOccurrences and generates 
+# presence points for different sample sizes. It returns a list called "presence_data"
+# containing occurrence data, coordinates, and a SpatVector for each sample size.
 
 # Define sample sizes
 sample_sizes <- c(20, 50, 100, 500, 1000)
@@ -50,12 +50,7 @@ sample_presences <- function(sim_sp, clim_data, sample_sizes) {
   return(results)
 }
 
-
-set.seed(123) # Set seed for reproducibility
 presence_data <- sample_presences(sim_sp1_pa, australia_clim1km, sample_sizes)
-
-
-
 
 
 

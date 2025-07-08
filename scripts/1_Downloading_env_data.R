@@ -4,7 +4,7 @@ library(geodata)
 library(sf)            
 #-------------------
 
-# Downloading environmental data and creating a region mask.
+# 1. Downloading environmental data and creating a region mask.
 
 ## (a). Downloading the environmental data ----
 
@@ -27,9 +27,9 @@ world <- geodata::world(resolution = 1, path = "data")
 # Extract the boundaries for Australia
 australia <- world[world$NAME_0 == "Australia", ]
 
-# Define the extent for the mask based on the Australia boundaries
+# Define the extent for the mask based on the Australia boundaries (excluding Tasmania)
 # The coordinates are: xmin, xmax, ymin, ymax
-australia_extent <- ext(113, 154, -44, -10)
+australia_extent <- ext(113, 154, -39, -10)
 
 # Create a blank raster with the same extent as your climate data
 mask_template <- rast(extent = australia_extent, resolution = 0.005)
@@ -62,4 +62,6 @@ plot(australia_clim1km[[c("bio10", "bio14")]])
 writeRaster(australia_clim1km, filename = "data/australia_clim1km.tif",
             overwrite = TRUE)
 
-# australia_clim1km <- rast("data/australia_clim1km.tif")
+#australia_clim1km <- rast("data/australia_clim1km.tif")
+#print(australia_clim1km)
+
