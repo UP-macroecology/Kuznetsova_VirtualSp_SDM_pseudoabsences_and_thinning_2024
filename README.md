@@ -13,36 +13,29 @@ We test a range of modeling algorithms (GAMs, GLMs, Random Forests, Maxent), run
 
 ## General workflow
 
-1. **Download environmental data & Crop it to the area of interest:**
-    - Use `worldclim_global` to download global climate variables with a resolution of 30 seconds (~1 km).
-    - Define the extent for the wished area using coordinates.
-    - Crop global climate data to the wished area.
-2. **Create virtual species (VS):**
-    - Define species' response to environmental variables using `formatFunctions`.
-    - Generate virtual species niche and plot spatial distribution of species’ environmental suitability using `generateSpFromFun`.
-    - Use `convertToPA` to create presence and absence points by converting suitability to probability using a logistic function.
-    - Plot relationship between suitability and probability of occurrence with `plotSuitabilityToProba`.
-    - Save virtual species objects for later use with `saveRDS` and read back with `readRDS`.
-3. **Sample occurrences and place a buffer for the background data:**
-    - Use `sampleOccurrences` to sample either “presence-absence” or “presence only” occurrence data, with options for introducing sampling biases.
-    - Place a buffer of 200 km around the virtual species records and sample background points within this buffer, excluding presence locations.
-    - Create a background mask with target resolution and extent from climate layers, setting all raster cells outside the buffer to NA.
-    - Exclude cells corresponding to presence locations from the background mask.
-    - Randomly select background data within the buffer, excluding presence locations.
-4. **Creating pseudo-absences:**
-    - Generate pseudo-absences by randomly selecting background data within the buffer, excluding presence locations for different ratios (x10, x5, x3, x1).
-    - Visualize selected background points and presence points on a plot.
-    - Combine presence and pseudo-absence data into a single dataset.
-    - Join combined data with climate data for further analysis.
+### 1. Downloading and Preparing Environmental Data
+To begin, I downloaded high-resolution (~1 km) bioclimatic variables from the WorldClim v2.1 database using the `worldclim_global` function. I focused on Australia as the area of interest and defined its extent manually, excluding Tasmania to simplify the modeling domain. A raster mask was created based on country boundaries and used to crop the climate data, spatially constraining it to terrestrial areas only. ([Script 1_Downloading_env_data](https://github.com/UP-macroecology/Kuznetsova_VirtualSp_SDM_pseudoabsences_and_thinning_2024/blob/main/scripts/1_Downloading_env_data.R).)
+
+### 2. Creating a Virtual Species
+Next, a virtual species was created using the `virtualspecies` package. I defined the species’ niche through Gaussian response curves for the mean temperature of the coldest month (bio6) and precipitation seasonality (bio15), representing its ecological preferences and tolerances. These functions were passed to `generateSpFromFun`, which produced a continuous environmental suitability map. The suitability values were then converted into probabilities of occurrence using a logistic transformation. Finally, a presence–absence raster was generated and saved, along with a dataframe linking geographic coordinates, occurrence values, and environmental predictors. ([Script 2_Defining_VS.R](https://github.com/UP-macroecology/Kuznetsova_VirtualSp_SDM_pseudoabsences_and_thinning_2024/blob/main/scripts/2_Defining_VS.R).)
+
+### 3. Sampling Occurrences and Background Data
+To simulate sampling as it might happen in ecological surveys, presence-only points were randomly drawn at different sample sizes (20, 50, 100, 500, and 1000 records) using the `sampleOccurrences()` function. Around each set of sampled presence points, a 200 km buffer / background area was created. Within the resulting exclusion buffer, pseudo-absences were randomly sampled at different ratios relative to the number of presences (1×, 3×, 5×, 10×). Each combined dataset of presence and pseudo-absence points was then enriched with the corresponding environmental values extracted from the climate layers. These structured datasets were saved for use in later modeling and spatial thinning steps. ([Script 3_Sampling_occ_and_pseudo_absences.R] (https://github.com/UP-macroecology/Kuznetsova_VirtualSp_SDM_pseudoabsences_and_thinning_2024/blob/main/scripts/3_Sampling_occ_and_pseudo_absences.R).)
+
+### 4. Spatial Thinning
+To reduce spatial autocorrelation in the presence–absence datasets, I applied two alternative thinning strategies. The first approach used the `spThin` package to enforce a minimum distance of 30 km between points, thinning both presence and pseudo-absence locations. The second approach used a checkerboard method, a grid-based thinning approach that overlays a checkerboard-style raster on the buffered region and keeps only one point per raster cell.
+
+These two methods were applied independently across all combinations of sample sizes and presence–absence ratios, resulting in two distinct collections of thinned datasets: one produced with spThin(), and another with the checkerboard filter. Both collections were saved separately for downstream use. In the final step, I visualized and compared the spatial distribution of points under both thinning strategies to assess how each method altered the spatial structure of the data (see [4_thinned_data_comparison.png](https://github.com/UP-macroecology/Kuznetsova_VirtualSp_SDM_pseudoabsences_and_thinning_2024/blob/main/plots/4_thinned_data_comparison.png)).
+([Script 4_Spatial_thinning.R](https://github.com/UP-macroecology/Kuznetsova_VirtualSp_SDM_pseudoabsences_and_thinning_2024/blob/main/scripts/4_Spatial_thinning.R).)
+    
 5. **Spatial thinning for DFs of 20, 50, 100, 500 and 1000 presences:** 
-    - Perform spatial thinning to reduce adjacent cells of presence/background data.
-    - Plot maps for each pseudo-absence level (x10, x5, x3, x1) and save the combined plot.
+To ensure that the chosen environmental predictors (bio6 and bio15) were not collinear, I calculated Spearman correlation coefficients across all 20 datasets resulting from the thinning step (combinations of spThin vs. checkerboard and all presence–absence ratios). 
+The correlation values ranged from 0.02 to 0.58, consistently below the 0.7 threshold ([see 5_corr_check_bio6_bio15.png](https://github.com/UP-macroecology/Kuznetsova_VirtualSp_SDM_pseudoabsences_and_thinning_2024/blob/main/plots/5_corr_check_bio6_bio15.png). This confirmed that both predictors could be used together in downstream species distribution models.
+([Script 5_Predictors_correlation_check.R](https://github.com/UP-macroecology/Kuznetsova_VirtualSp_SDM_pseudoabsences_and_thinning_2024/blob/main/scripts/5_Predictors_correlation_check.R).)
+
 6. **Running SDMs for different DFs and presence/absence proportions:**
     - Load species occurrence data and corresponding thinned data for different presence/absence proportions (x20, x5, x3, x1).
-    - Rename columns and join with climate variables.
     - For each dataset:
-        - Check multicollinearity among environmental variables.
-        - Select predictor variables based on correlation analysis.
         - Split data into training and testing sets.
         - Calculate weights for GLM models.
         - Fit GLM and GAM models.

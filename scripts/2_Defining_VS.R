@@ -9,13 +9,13 @@ library(terra)
 ## (a). Defining VS by their response to the environmental variables -----
 
 # These responses are then combined to calculate the environmental suitability 
-# of the virtual species. Here we create a species inhabiting the coastal region of
-# Australia with the according average values of annual temperature and 
-# precipitation. The species is inspired by the Eastern Water Dragon.
+# of the virtual species. Here we create a supposedly reptile species inhabiting the coastal region of
+# Australia with the according average values of annual temperature and precipitation. 
 
 set.seed(123)
 # The first step is to provide to the helper function formatFunctions which 
-# responses we want for which variables
+# responses we want for the picked predicting variables: bio6 and bio15.
+
 optima_temp = 2 # optimal mean temperature of the coldest month; 
 sd_temp = 2.5 # possible deviation from the temperature;
 optima_prec = 20 # optimal precipitation seasonality in % (coastal regions are more buffered, less seasonal, than the interior); 
