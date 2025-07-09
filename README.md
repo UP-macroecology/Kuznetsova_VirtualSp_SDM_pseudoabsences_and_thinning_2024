@@ -29,7 +29,7 @@ These two methods were applied independently across all combinations of sample s
     
 ## 5. Checking Correlation Between Predictors
 To ensure that the chosen environmental predictors (bio6 and bio15) were not collinear, I calculated Spearman correlation coefficients across all 20 datasets resulting from the thinning step (combinations of spThin vs. checkerboard and all presence–absence ratios). 
-The correlation values ranged from 0.02 to 0.58, consistently below the 0.7 threshold ([see 5_corr_check_bio6_bio15.png](https://github.com/UP-macroecology/Kuznetsova_VirtualSp_SDM_pseudoabsences_and_thinning_2024/blob/main/plots/5_corr_check_bio6_bio15.png). This confirmed that both predictors could be used together in downstream species distribution models. (Script [5_Predictors_correlation_check.R](https://github.com/UP-macroecology/Kuznetsova_VirtualSp_SDM_pseudoabsences_and_thinning_2024/blob/main/scripts/5_Predictors_correlation_check.R).)
+The correlation values ranged from 0.02 to 0.58, consistently below the 0.7 threshold ([see 5_corr_check_bio6_bio15.png](https://github.com/UP-macroecology/Kuznetsova_VirtualSp_SDM_pseudoabsences_and_thinning_2024/blob/main/plots/5_corr_check_bio6_bio15.png)). This confirmed that both predictors could be used together in downstream species distribution models. (Script [5_Predictors_correlation_check.R](https://github.com/UP-macroecology/Kuznetsova_VirtualSp_SDM_pseudoabsences_and_thinning_2024/blob/main/scripts/5_Predictors_correlation_check.R).)
 
 6. **Running SDMs for different DFs and presence/absence proportions:**
     - Load species occurrence data and corresponding thinned data for different presence/absence proportions (x20, x5, x3, x1).
