@@ -4,7 +4,7 @@ library(ggplot2)
 library(tidyr)
 
 #-------------------
-# 5. Checking for correlation between predictors
+# 4. Checking for correlation between predictors
 
 # Spearman correlations were calculated across 20 datasets representing 
 # different combinations of spatial thinning (spThin/checkerboard) and 
@@ -56,5 +56,5 @@ ggplot(cor_df_long, aes(x = Ratio, y = SpearmanCorrelation, color = ThinningMeth
        y = "Spearman Correlation", x = "PA Ratio")
 
 # Save plot
-dev.copy(png, filename = "plots/5_corr_check_bio6_bio15.png", width = 1600, height = 1200, res = 200)
+dev.copy(png, filename = "plots/4_corr_check_bio6_bio15.png", width = 1600, height = 1200, res = 200)
 dev.off()

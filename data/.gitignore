@@ -13,9 +13,6 @@ SDM_alg_perf_500x10x5x3x1_chb.txt
 SDM_alg_perf_50x10x5x3x1_chb.txt
 VS.dataframe.csv
 VS_2.dataframe.csv
-australia_clim1km.tif
-bg_australia_mask.grd
-bg_australia_mask.grd.aux.xml
 bg_australia_mask.gri
 buffer_data.RDS
 buffer_data2.RDS
@@ -28,3 +25,7 @@ thinned_checker_data2.RDS
 thinned_spThin_data.RDS
 thinned_spThin_data2.RDS
 sim_sp1_pa_env_df.csv
+.Rapp.history
+australia_clim1km.tif
+bg_australia_mask.grd
+bg_australia_mask.grd.aux.xml

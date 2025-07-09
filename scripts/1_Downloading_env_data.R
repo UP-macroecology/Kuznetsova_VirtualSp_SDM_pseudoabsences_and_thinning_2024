@@ -52,7 +52,6 @@ australia_clim1km <- crop(clim1km, australia_sf)
 # Mask the cropped climate data to the exact shape of Australia
 australia_clim1km <- mask(australia_clim1km, australia_sf)
 
-
 # Plot the cropped layers 
 # We are interested in layers bio10 and bio14 
 # (mean temperature of the warmest quarter, precipitation of the driest month)
@@ -61,6 +60,13 @@ plot(australia_clim1km[[c("bio10", "bio14")]])
 # Save the cropped climate data for Australia as a raster file
 writeRaster(australia_clim1km, filename = "data/australia_clim1km.tif",
             overwrite = TRUE)
+
+
+# (c). Creating and saving a mask file
+bg <- australia_clim1km[[1]]
+values(bg)[!is.na(values(bg))] <- 1
+writeRaster(bg, "data/bg_australia_mask.grd", overwrite=TRUE)
+
 
 #australia_clim1km <- rast("data/australia_clim1km.tif")
 #print(australia_clim1km)

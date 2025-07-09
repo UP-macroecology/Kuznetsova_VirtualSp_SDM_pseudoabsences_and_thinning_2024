@@ -1,29 +1,15 @@
-library(geodata)       
-library(terra)         
-library(virtualspecies) 
 
-#-------------------
-# 3. Sampling occurrences and absences
 
-# Load VS and region mask data
-sim_sp1_pa <- readRDS("data/MyVirtualSpecies.RDS")
-australia_clim1km <- rast("data/australia_clim1km.tif")
+#---------------
+# 0. Custom functions 
 
-## a. Sampling  occurrences (x20, x50, x100, x500, x1000) ----
 
-# Function sampleOccurrences from virtualspecies libraryallows to sample either 
-# “presence-absence” or “presence only” occurrence data. The function sampleOccurrences 
-# also provides the possibility to introduce a number of sampling biases, such as
-# uneven spatial sampling intensity, probability of detection, and probability of error.
+
+# a. Presences sampling -------------
 
 # The function sample_presences() uses the function sampleOccurrences and generates 
 # presence points for different sample sizes. It returns a list called "presence_data"
 # containing occurrence data, coordinates, and a SpatVector for each sample size.
-
-# Define sample sizes
-sample_sizes <- c(20, 50, 100, 500, 1000)
-set.seed(123) # Set seed for reproducibility
-
 
 sample_presences <- function(sim_sp, clim_data, sample_sizes) {
   
@@ -31,7 +17,7 @@ sample_presences <- function(sim_sp, clim_data, sample_sizes) {
   
   for (n in sample_sizes) {
     # Sample occurrences
-    sample_occurrences <- sampleOccurrences(sim_sp, n = n, type = "presence only")
+    sample_occurrences <- sampleOccurrences(sim_sp, n = n, type = "presence only", plot=F)
     
     # Extract coordinates
     sp_coords <- sample_occurrences$sample.points[1:2]
@@ -50,28 +36,17 @@ sample_presences <- function(sim_sp, clim_data, sample_sizes) {
   return(results)
 }
 
-presence_data <- sample_presences(sim_sp1_pa, australia_clim1km, sample_sizes)
 
 
 
-## b. Creating a 200 km buffer for pseudo-absences ----------------
-
-# We place a buffer of 200 km around our virtual species records and sample
-# background points randomly from within the buffer but excluding presence locations.
+# b. Presences sampling -------------
 
 # The function generate_buffers() creates a 200 km buffer around the presence points 
 # created in (a), applies a background mask, and excludes presence locations 
 # from the buffer, storing the results as SpatVector and SpatRaster objects in 
 # the list called "buffer_data".
 
-# Create background mask
-bg <- australia_clim1km[[1]]
-values(bg)[!is.na(values(bg))] <- 1
-writeRaster(bg, "data/bg_australia_mask.grd", overwrite=TRUE)
-
-
-
-generate_buffers <- function(presence_data, sample_sizes) {
+generate_buffers <- function(presence_data, sample_sizes, bg) {
   
   results <- list()
   
@@ -100,27 +75,19 @@ generate_buffers <- function(presence_data, sample_sizes) {
     )
     
     # Plot buffer
-    plot(bg, col='grey90', legend=FALSE)
-    plot(region_buf_obj, add=TRUE, col='grey60', legend=FALSE)
+    #plot(bg, col='grey90', legend=FALSE)
+    #plot(region_buf_obj, add=TRUE, col='grey60', legend=FALSE)
   }
   
   return(results)
 }
 
-buffer_data <- generate_buffers(presence_data, sample_sizes)
-
-# Since buffer_data now contains both, SpatVector and SpatRaster data, saving it 
-# and reloading leads to the corruption of the data. So the buffer data has to be regenerated
-# if needed again (e.g. script 4).
 
 
 
 
-## c. Creating pseudo-absences (presences x10 / x5 / x3 / x1) ----------
 
-# Pseudo-absences are generated within a 200 km buffer around the sampled presence 
-# points while ensuring that presence locations are excluded. This process allows 
-# for spatially constrained background sampling, improving the accuracy of species distribution models.
+# c. Background data generation ----------------
 
 # The function generate_pseudo_absences() creates pseudo-absence points at 
 # different ratios (10x, 5x, 3x, 1x) relative to the number of presence points. 
@@ -129,10 +96,6 @@ buffer_data <- generate_buffers(presence_data, sample_sizes)
 # extracted environmental values. The pseudo-absence points are sampled randomly 
 # from the exclusion buffer (region_buf_exclp) to ensure they do not overlap 
 # with presence locations.
-
-# Define sample sizes and pseudo-absence ratios
-sample_sizes <- c(20, 50, 100, 500, 1000)
-pa_ratios <- c(10, 5, 3, 1)
 
 generate_pseudo_absences <- function(presence_data, buffer_data, clim_data, sample_sizes, pa_ratios) {
   results <- list()
@@ -154,10 +117,10 @@ generate_pseudo_absences <- function(presence_data, buffer_data, clim_data, samp
                                        exhaustive=TRUE)
       
       # Plot presence and pseudo-absence points
-      plot(clim_data[[1]], col='grey90', legend=FALSE)
-      plot(region_buf, add=TRUE, col='grey60', legend=FALSE)
-      points(bg_rand_obj, pch=19, cex=0.2)
-      points(presences, pch=19, cex=0.5, col='red')
+      #plot(clim_data[[1]], col='grey90', legend=FALSE)
+      #plot(region_buf, add=TRUE, col='grey60', legend=FALSE)
+      #points(bg_rand_obj, pch=19, cex=0.2)
+      #points(presences, pch=19, cex=0.5, col='red')
       
       # Prepare presence data
       sp_env_obj <- data.frame(presence_data[[as.character(n)]]$coords, occ=1)
@@ -184,10 +147,78 @@ generate_pseudo_absences <- function(presence_data, buffer_data, clim_data, samp
   return(results)
 }
 
-# Usage
-pseudo_absence_data <- generate_pseudo_absences(presence_data, buffer_data, australia_clim1km, sample_sizes, pa_ratios)
 
-# Save pseudo_absence_data
-saveRDS(pseudo_absence_data, "data/pseudo_absence_data.RDS")
 
-#pseudo_absence_data <- readRDS("data/pseudo_absence_data.RDS")
+
+
+# d. Thinning with spThin --------------------
+
+# The function thin_spThin() applies the spThin() method to remove closely located 
+# occurrences based on a specified minimum distance. It returns a list of 
+# spatially thinned datasets for different presence-absence ratios.
+
+
+thin_spThin <- function(pseudo_absence_data, clim_data, thin_distance = 30) {
+  thinned_results <- list()
+  
+  for (key in names(pseudo_absence_data)) {
+    # Add species name for spThin()
+    pseudo_absence_data[[key]]$sp <- "Virtual_species"
+    
+    # Perform spatial thinning
+    xy_thinned <- thin(
+      pseudo_absence_data[[key]], 
+      lat.col = "decimalLatitude", long.col = "decimalLongitude",
+      spec.col = "sp",
+      thin.par = thin_distance,
+      reps = 1,
+      write.files = FALSE,
+      locs.thinned.list.return = TRUE
+    )
+    
+    # Keep only thinned points
+    xy_keep <- xy_thinned[[1]]
+    
+    # Extract cell numbers and subset dataset
+    cells_thinned <- terra::cellFromXY(clim_data, xy_keep)
+    sp_thinned <- pseudo_absence_data[[key]][pseudo_absence_data[[key]]$cell %in% cells_thinned, ]
+    
+    # Store result in the list
+    thinned_results[[key]] <- sp_thinned
+  }
+  
+  return(thinned_results)
+}
+
+
+
+# e. Thinning with a checkerboard method -----------
+
+# The function thin_checkerboard() applies a checkerboard thinning approach, 
+# filtering points based on a rasterized grid pattern. It returns a list of 
+# datasets where occurrences are aligned with the checkerboard grid.
+
+
+thin_checkerboard <- function(pseudo_absence_data, buffer_data) {
+  thinned_results <- list()
+  
+  for (n in names(buffer_data)) {
+    # Create checkerboard raster for each buffer
+    r_chess <- mask(init(buffer_data[[n]]$region_buf, "chess"), buffer_data[[n]]$region_buf)
+    values(r_chess)[values(r_chess) < 1] <- NA
+    names(r_chess) <- "chess"
+    
+    for (key in names(pseudo_absence_data)) {
+      if (grepl(paste0("^", n, "_"), key)) {  # Match sample size with pseudo-absence ratio
+        # Apply checkerboard thinning by merging with raster cells
+        sp_thinned <- merge(as.data.frame(r_chess, cell = TRUE), pseudo_absence_data[[key]], by = "cell")
+        
+        # Store result in the list
+        thinned_results[[key]] <- sp_thinned
+      }
+    }
+  }
+  
+  return(thinned_results)
+}
+
